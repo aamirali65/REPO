@@ -114,9 +114,9 @@ export function RepositorySelector() {
                   )}
                 </div>
                 <div className="flex-1 min-w-0">
-                  <div className="flex items-center gap-2">
-                    <span className="text-[12px] font-medium text-repo-text">{repo.name}</span>
-                    <span className="text-[10px] text-repo-text-muted">{repo.fullName}</span>
+                  <div className="flex items-center gap-2 min-w-0">
+                    <span className="text-[12px] font-medium text-repo-text truncate">{repo.name}</span>
+                    <span className="text-[10px] text-repo-text-muted truncate">{repo.fullName}</span>
                     <span className={cn(
                       'px-1.5 py-0.5 rounded text-[9px] font-medium',
                       repo.visibility === 'private'
