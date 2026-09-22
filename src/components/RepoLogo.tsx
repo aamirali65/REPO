@@ -1,5 +1,3 @@
-import React from 'react';
-
 interface RepoLogoProps {
   size?: number;
   className?: string;

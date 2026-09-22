@@ -77,7 +77,7 @@ function parseMarkdown(text: string): React.ReactNode[] {
       return (
         <div key={i} className="flex items-start gap-2 ml-1">
           <span className="text-repo-accent/60 text-[11px] font-mono mt-0.5">{line[0]}.</span>
-          <span>{processed.map((p, j) => typeof p === 'string' ? p.replace(/^\d+\.\s*/, '') : p)}</span>
+          <span>{processed.map(p => typeof p === 'string' ? p.replace(/^\d+\.\s*/, '') : p)}</span>
         </div>
       );
     }

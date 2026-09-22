@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import { useState } from 'react';
 import { Search as SearchIcon, FileCode, Hash, Braces, Layers, Filter } from 'lucide-react';
 import { searchResults } from '../data/mockData';
 import { useApp } from '../store/AppContext';

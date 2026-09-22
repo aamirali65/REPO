@@ -1,13 +1,12 @@
-import React, { useState, useEffect } from 'react';
+import { useState } from 'react';
 import { Search, Lock, Globe, ArrowRight } from 'lucide-react';
 import { useApp } from '../store/AppContext';
-import { repositories, type Repository } from '../data/mockData';
 import { cn } from '../lib/utils';
 
 type Filter = 'all' | 'public' | 'private' | 'recent';
 
 export function RepositorySelector() {
-  const { selectRepo, startAnalysis, selectedRepo } = useApp();
+  const { selectRepo, startAnalysis, selectedRepo, repositories, reposLoading, reposError, retryLoadRepos } = useApp();
   const [query, setQuery] = useState('');
   const [filter, setFilter] = useState<Filter>('all');
 
@@ -59,7 +58,34 @@ export function RepositorySelector() {
 
           {/* Repository list */}
           <div className="space-y-1">
-            {filtered.map((repo) => (
+            {reposLoading && (
+              <div className="flex items-center gap-2 px-3 py-4 text-[12px] text-repo-text-secondary">
+                <span className="w-4 h-4 border-2 border-repo-accent border-t-transparent rounded-full animate-spin" />
+                Loading repositories...
+              </div>
+            )}
+
+            {!reposLoading && reposError && (
+              <div className="flex flex-col items-center gap-3 px-3 py-6 text-center animate-fade-in">
+                <span className="text-[12px] text-repo-danger">{reposError}</span>
+                <button
+                  onClick={retryLoadRepos}
+                  className="px-3 py-1.5 rounded bg-repo-accent text-repo-bg text-[11px] font-medium hover:bg-repo-accent/90 transition-colors"
+                >
+                  Retry
+                </button>
+              </div>
+            )}
+
+            {!reposLoading && !reposError && filtered.length === 0 && (
+              <div className="px-3 py-6 text-center text-[12px] text-repo-text-muted animate-fade-in">
+                {repositories.length === 0
+                  ? 'No repositories found for this account yet.'
+                  : 'No repositories match your search.'}
+              </div>
+            )}
+
+            {!reposLoading && !reposError && filtered.map((repo) => (
               <button
                 key={repo.id}
                 onClick={() => selectRepo(repo)}
@@ -111,7 +137,7 @@ export function RepositorySelector() {
           </div>
 
           {/* Analyze button */}
-          {selectedRepo && (
+          {selectedRepo && !reposLoading && (
             <div className="mt-4 flex justify-end animate-slide-up">
               <button
                 onClick={startAnalysis}

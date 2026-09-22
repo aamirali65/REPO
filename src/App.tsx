@@ -1,5 +1,5 @@
-import React, { useEffect } from 'react';
-import { AppProvider, useApp } from './store/AppContext';
+import { useEffect } from 'react';
+import { AppProvider, useApp, CALLBACK_PATH } from './store/AppContext';
 import { Sidebar } from './components/Sidebar';
 import { TopBar } from './components/TopBar';
 import { StatusBar } from './components/StatusBar';
@@ -48,7 +48,13 @@ function Workspace() {
 }
 
 function AppContent() {
-  const { step, connectGitHub } = useApp();
+  const { step, connectGitHub, handleOAuthCallback } = useApp();
+
+  useEffect(() => {
+    if (window.location.pathname.startsWith(CALLBACK_PATH)) {
+      handleOAuthCallback();
+    }
+  }, [handleOAuthCallback]);
 
   useEffect(() => {
     const handler = () => connectGitHub();

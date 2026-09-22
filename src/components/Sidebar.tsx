@@ -1,12 +1,10 @@
-import React from 'react';
 import {
   MessageSquare, Code2, Network, AlertTriangle, Search,
-  Settings, ChevronLeft, ChevronRight, FileCode, Folder
+  Settings, ChevronLeft, ChevronRight, Folder
 } from 'lucide-react';
 import { GithubIcon } from './GithubIcon';
 import { RepoLogo } from './RepoLogo';
 import { useApp } from '../store/AppContext';
-import { currentUser } from '../data/mockData';
 import { cn } from '../lib/utils';
 
 const navItems = [
@@ -21,7 +19,7 @@ const codeItems = [
 ];
 
 export function Sidebar() {
-  const { workspaceView, setWorkspaceView, sidebarCollapsed, toggleSidebar, selectedRepo, setRepoSwitcherOpen } = useApp();
+  const { workspaceView, setWorkspaceView, sidebarCollapsed, toggleSidebar, selectedRepo, setRepoSwitcherOpen, user } = useApp();
 
   return (
     <aside
@@ -140,14 +138,14 @@ export function Sidebar() {
           <Settings size={14} className={workspaceView === 'settings' ? 'text-repo-accent' : 'text-repo-text-muted'} />
           {!sidebarCollapsed && <span>Settings</span>}
         </button>
-        {!sidebarCollapsed && (
+        {!sidebarCollapsed && user && (
           <div className="flex items-center gap-2 mt-2 px-2">
             <div className="w-6 h-6 rounded-full bg-repo-accent/20 flex items-center justify-center text-[10px] font-medium text-repo-accent">
-              {currentUser.avatar}
+              {user.avatar}
             </div>
             <div className="flex flex-col">
-              <span className="text-[11px] font-medium text-repo-text">{currentUser.name}</span>
-              <span className="text-[10px] text-repo-text-muted">{currentUser.username}</span>
+              <span className="text-[11px] font-medium text-repo-text">{user.name}</span>
+              <span className="text-[10px] text-repo-text-muted">{user.username}</span>
             </div>
           </div>
         )}

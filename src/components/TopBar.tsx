@@ -1,12 +1,10 @@
-import React from 'react';
 import { Search, ChevronDown, Command } from 'lucide-react';
 import { GithubIcon } from './GithubIcon';
 import { RepoLogo } from './RepoLogo';
 import { useApp } from '../store/AppContext';
-import { currentUser } from '../data/mockData';
 
 export function TopBar() {
-  const { selectedRepo, setCommandPaletteOpen, setRepoSwitcherOpen } = useApp();
+  const { selectedRepo, setCommandPaletteOpen, setRepoSwitcherOpen, user } = useApp();
 
   return (
     <header className="h-[40px] bg-repo-surface border-b border-repo-border flex items-center justify-between px-3 select-none">
@@ -58,7 +56,7 @@ export function TopBar() {
         </button>
         <div className="flex items-center gap-2 pl-2 border-l border-repo-border">
           <div className="w-6 h-6 rounded-full bg-repo-accent/20 flex items-center justify-center text-[10px] font-medium text-repo-accent">
-            {currentUser.avatar}
+            {user?.avatar ?? ''}
           </div>
         </div>
       </div>

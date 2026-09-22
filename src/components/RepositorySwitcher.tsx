@@ -1,11 +1,10 @@
-import React, { useState, useRef, useEffect } from 'react';
+import { useState, useRef, useEffect } from 'react';
 import { X, Search, GitBranch } from 'lucide-react';
 import { useApp } from '../store/AppContext';
-import { repositories, type Repository } from '../data/mockData';
 import { cn } from '../lib/utils';
 
 export function RepositorySwitcher() {
-  const { repoSwitcherOpen, setRepoSwitcherOpen, switchRepo, selectedRepo } = useApp();
+  const { repoSwitcherOpen, setRepoSwitcherOpen, switchRepo, selectedRepo, repositories } = useApp();
   const [query, setQuery] = useState('');
   const inputRef = useRef<HTMLInputElement>(null);
 
@@ -65,6 +64,11 @@ export function RepositorySwitcher() {
           <div className="px-3 py-1.5 text-[10px] font-medium tracking-wider text-repo-text-muted uppercase">
             Recent
           </div>
+          {filtered.length === 0 && (
+            <div className="px-3 py-6 text-center text-[12px] text-repo-text-muted">
+              No repositories match your search.
+            </div>
+          )}
           {filtered.map((repo) => (
             <button
               key={repo.id}

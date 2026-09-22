@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import { useState, useEffect } from 'react';
 import { RepoLogo } from '../components/RepoLogo';
 import { useApp } from '../store/AppContext';
 import { Check, ArrowRight } from 'lucide-react';

@@ -1,12 +1,10 @@
-import React from 'react';
 import { RepoLogo } from '../components/RepoLogo';
 import { useApp } from '../store/AppContext';
-import { currentUser } from '../data/mockData';
 import { Lock, Folder } from 'lucide-react';
 import { GithubIcon } from '../components/GithubIcon';
 
 export function Welcome() {
-  const { connectGitHub } = useApp();
+  const { connectGitHub, authError } = useApp();
 
   return (
     <div className="h-full w-full flex flex-col items-center justify-center bg-repo-bg animate-fade-in">
@@ -14,11 +12,11 @@ export function Welcome() {
         <RepoLogo size={48} />
         <div className="flex flex-col items-center gap-1.5">
           <h1 className="text-[22px] font-semibold tracking-wide text-repo-text">Repo</h1>
-          <p className="text-[13px] text-repo-text-secondary">Understand your codebase.</p>
+          <p className="text-[13px] text-repo-text-secondary">Understand your codebase</p>
         </div>
 
         <p className="text-[11px] text-repo-text-muted mt-1">
-          Connect your GitHub account or open a local repository.
+          Connect your GitHub account or open a local repository
         </p>
 
         <div className="flex items-center gap-3 mt-3">
@@ -42,8 +40,14 @@ export function Welcome() {
           </div>
         </div>
 
+        {authError && (
+          <p className="mt-3 text-[11px] text-repo-danger max-w-[300px] text-center leading-relaxed">
+            {authError}
+          </p>
+        )}
+
         <p className="text-[10px] text-repo-text-muted/60 mt-2">
-          Local-first AI. Your source code stays on your machine.
+          Local-first AI. Your source code stays on your machine
         </p>
       </div>
     </div>

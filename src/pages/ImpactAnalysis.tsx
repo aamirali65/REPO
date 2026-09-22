@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Search, AlertTriangle, ChevronRight, ArrowDown, ExternalLink, FileCode } from 'lucide-react';
+import { Search, AlertTriangle, ChevronRight, ArrowDown, FileCode } from 'lucide-react';
 import { impactRefs } from '../data/mockData';
 import { cn } from '../lib/utils';
 

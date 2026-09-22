@@ -6,7 +6,7 @@ import {
 import { archNodes, archEdges, type ArchNode } from '../data/mockData';
 import { cn } from '../lib/utils';
 
-const typeIcons: Record<string, React.FC<{ size: number }>> = {
+const typeIcons: Record<string, React.FC<{ size: number; style?: React.CSSProperties }>> = {
   screen: Monitor,
   provider: Cpu,
   service: Layers,

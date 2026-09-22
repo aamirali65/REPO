@@ -1,10 +1,10 @@
-import React, { useState } from 'react';
+import { useState } from 'react';
 import { Settings as SettingsIcon, Palette, Code2, Brain, Shield, Info } from 'lucide-react';
 import { GithubIcon } from '../components/GithubIcon';
-import { currentUser } from '../data/mockData';
-import { cn } from '../lib/utils';
+import { useApp } from '../store/AppContext';
 
 export function Settings() {
+  const { user } = useApp();
   const [font, setFont] = useState('JetBrains Mono');
   const [fontSize, setFontSize] = useState(14);
   const [provider] = useState('Ollama');
@@ -135,10 +135,10 @@ export function Settings() {
                 <span className="text-[12px] text-repo-text-secondary">Connected account</span>
                 <div className="flex items-center gap-2">
                   <div className="w-5 h-5 rounded-full bg-repo-accent/20 flex items-center justify-center text-[8px] font-medium text-repo-accent">
-                    {currentUser.avatar}
+                    {user?.avatar ?? '?'}
                   </div>
-                  <span className="text-[11px] text-repo-text">{currentUser.name}</span>
-                  <span className="text-[10px] text-repo-text-muted">{currentUser.username}</span>
+                  <span className="text-[11px] text-repo-text">{user?.name}</span>
+                  <span className="text-[10px] text-repo-text-muted">{user?.username}</span>
                 </div>
               </div>
             </div>
