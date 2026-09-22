@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { Search, Lock, Globe, ArrowRight, ChevronLeft, ChevronRight } from 'lucide-react';
+import { Search, Lock, Globe, ArrowRight, ChevronLeft, ChevronRight, LogOut } from 'lucide-react';
 import { useApp } from '../store/AppContext';
 import { cn } from '../lib/utils';
 
@@ -8,7 +8,7 @@ type Filter = 'all' | 'public' | 'recent';
 const PAGE_SIZE = 5;
 
 export function RepositorySelector() {
-  const { selectRepo, startAnalysis, selectedRepo, repositories, reposLoading, reposError, retryLoadRepos } = useApp();
+  const { selectRepo, startAnalysis, selectedRepo, repositories, reposLoading, reposError, retryLoadRepos, disconnect } = useApp();
   const [query, setQuery] = useState('');
   const [filter, setFilter] = useState<Filter>('all');
   const [page, setPage] = useState(1);
@@ -32,10 +32,21 @@ export function RepositorySelector() {
     <div className="h-full w-full flex flex-col bg-repo-bg animate-fade-in">
       <div className="flex-1 flex flex-col items-center pt-12 px-4">
         <div className="w-full max-w-[560px]">
-          <h1 className="text-[18px] font-semibold text-repo-text mb-1">Select a repository</h1>
-          <p className="text-[12px] text-repo-text-secondary mb-5">
-            Choose a repository to understand with Repo.
-          </p>
+          <div className="flex items-start justify-between gap-3 mb-5">
+            <div>
+              <h1 className="text-[18px] font-semibold text-repo-text mb-1">Select a repository</h1>
+              <p className="text-[12px] text-repo-text-secondary">
+                Choose a repository to understand with Repo.
+              </p>
+            </div>
+            <button
+              onClick={disconnect}
+              className="flex items-center gap-1.5 shrink-0 px-2.5 py-1.5 rounded border border-repo-border text-[11px] text-repo-danger hover:bg-repo-danger/10 transition-colors"
+            >
+              <LogOut size={12} />
+              Disconnect
+            </button>
+          </div>
 
           {/* Search */}
           <div className="flex items-center gap-2 px-3 h-[34px] bg-repo-surface border border-repo-border rounded mb-3">
@@ -67,7 +78,7 @@ export function RepositorySelector() {
           </div>
 
           {/* Repository list */}
-          <div className="space-y-1 max-h-[440px] overflow-y-auto pr-1">
+          <div className="space-y-1 max-h-[420px] overflow-y-auto pr-1">
             {reposLoading && (
               <div className="flex items-center gap-2 px-3 py-4 text-[12px] text-repo-text-secondary">
                 <span className="w-4 h-4 border-2 border-repo-accent border-t-transparent rounded-full animate-spin" />
@@ -100,7 +111,7 @@ export function RepositorySelector() {
                 key={repo.id}
                 onClick={() => selectRepo(repo)}
                 className={cn(
-                  'w-full flex items-center gap-3 p-3 rounded border transition-all duration-150 text-left group',
+                  'w-full flex items-center gap-3 h-[84px] px-3 overflow-hidden rounded border transition-all duration-150 text-left group',
                   selectedRepo?.id === repo.id
                     ? 'border-repo-accent/40 bg-repo-accent/5'
                     : 'border-repo-border bg-repo-surface hover:border-repo-text-muted/30 hover:bg-repo-surface-2'
@@ -126,7 +137,7 @@ export function RepositorySelector() {
                       {repo.visibility}
                     </span>
                   </div>
-                  <p className="text-[11px] text-repo-text-muted mt-0.5 truncate">{repo.description}</p>
+                  <p className="text-[11px] text-repo-text-muted mt-0.5 truncate h-4 leading-4">{repo.description}</p>
                   <div className="flex items-center gap-3 mt-1.5">
                     <span className="text-[10px] text-repo-text-muted">{repo.language}</span>
                     <span className="text-[10px] text-repo-text-muted">{repo.framework}</span>
@@ -155,8 +166,11 @@ export function RepositorySelector() {
                   <ChevronLeft size={14} />
                   Previous
                 </button>
-                <span className="text-[11px] text-repo-text-muted">
-                  Page {currentPage} of {pageCount}
+                <span className="text-[11px] text-repo-text-muted whitespace-nowrap">
+                  Page <span className="text-repo-accent font-medium">{currentPage}</span> of{' '}
+                  <span className="text-repo-accent font-medium">{pageCount}</span>
+                  <span className="mx-1.5 opacity-60">&middot;</span>
+                  {filtered.length} repositories
                 </span>
                 <button
                   onClick={() => setPage((prev) => Math.min(pageCount, prev + 1))}
@@ -171,11 +185,17 @@ export function RepositorySelector() {
 
 
           {/* Analyze button */}
-          {selectedRepo && !reposLoading && (
-            <div className="mt-4 flex justify-end animate-slide-up">
+          {!reposLoading && (
+            <div className="mt-4 flex justify-end">
               <button
                 onClick={startAnalysis}
-                className="flex items-center gap-2 px-4 py-2 rounded bg-repo-accent text-repo-bg text-[12px] font-medium hover:bg-repo-accent/90 transition-colors"
+                disabled={!selectedRepo}
+                className={cn(
+                  'flex items-center gap-2 px-4 py-2 rounded text-[12px] font-medium transition-colors',
+                  selectedRepo
+                    ? 'bg-repo-accent text-repo-bg hover:bg-repo-accent/90 animate-slide-up'
+                    : 'bg-repo-surface-2 text-repo-text-muted cursor-not-allowed'
+                )}
               >
                 Analyze Repository
                 <ArrowRight size={14} />
