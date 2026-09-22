@@ -1,22 +1,33 @@
-import { useState } from 'react';
-import { Search, Lock, Globe, ArrowRight } from 'lucide-react';
+import { useState, useEffect } from 'react';
+import { Search, Lock, Globe, ArrowRight, ChevronLeft, ChevronRight } from 'lucide-react';
 import { useApp } from '../store/AppContext';
 import { cn } from '../lib/utils';
 
-type Filter = 'all' | 'public' | 'private' | 'recent';
+type Filter = 'all' | 'public' | 'recent';
+
+const PAGE_SIZE = 6;
 
 export function RepositorySelector() {
   const { selectRepo, startAnalysis, selectedRepo, repositories, reposLoading, reposError, retryLoadRepos } = useApp();
   const [query, setQuery] = useState('');
   const [filter, setFilter] = useState<Filter>('all');
+  const [page, setPage] = useState(1);
 
   const filtered = repositories.filter(repo => {
+    if (repo.visibility !== 'public') return false;
     const matchesQuery = repo.name.toLowerCase().includes(query.toLowerCase()) ||
       repo.fullName.toLowerCase().includes(query.toLowerCase());
-    if (filter === 'public') return matchesQuery && repo.visibility === 'public';
-    if (filter === 'private') return matchesQuery && repo.visibility === 'private';
+    if (filter === 'public') return matchesQuery;
     return matchesQuery;
   });
+
+  const pageCount = Math.max(1, Math.ceil(filtered.length / PAGE_SIZE));
+  const currentPage = Math.min(page, pageCount);
+  const visible = filtered.slice((currentPage - 1) * PAGE_SIZE, currentPage * PAGE_SIZE);
+
+  useEffect(() => {
+    setPage(1);
+  }, [query, filter]);
 
   return (
     <div className="h-full w-full flex flex-col bg-repo-bg animate-fade-in">
@@ -40,7 +51,7 @@ export function RepositorySelector() {
 
           {/* Filters */}
           <div className="flex items-center gap-1 mb-4">
-            {(['all', 'public', 'private', 'recent'] as Filter[]).map((f) => (
+            {(['all', 'public', 'recent'] as Filter[]).map((f) => (
               <button
                 key={f}
                 onClick={() => setFilter(f)}
@@ -85,7 +96,7 @@ export function RepositorySelector() {
               </div>
             )}
 
-            {!reposLoading && !reposError && filtered.map((repo) => (
+            {!reposLoading && !reposError && visible.map((repo) => (
               <button
                 key={repo.id}
                 onClick={() => selectRepo(repo)}
@@ -135,6 +146,30 @@ export function RepositorySelector() {
               </button>
             ))}
           </div>
+            {!reposLoading && !reposError && pageCount > 1 && (
+              <div className="flex items-center justify-between pt-3 border-t border-repo-border">
+                <button
+                  onClick={() => setPage((prev) => Math.max(1, prev - 1))}
+                  disabled={currentPage <= 1}
+                  className="flex items-center gap-1 px-2.5 py-1 rounded text-[11px] text-repo-text-muted hover:text-repo-text hover:bg-repo-surface-2 disabled:opacity-40 disabled:cursor-not-allowed disabled:hover:bg-transparent disabled:hover:text-repo-text-muted transition-colors"
+                >
+                  <ChevronLeft size={14} />
+                  Previous
+                </button>
+                <span className="text-[11px] text-repo-text-muted">
+                  Page {currentPage} of {pageCount}
+                </span>
+                <button
+                  onClick={() => setPage((prev) => Math.min(pageCount, prev + 1))}
+                  disabled={currentPage >= pageCount}
+                  className="flex items-center gap-1 px-2.5 py-1 rounded text-[11px] text-repo-text-muted hover:text-repo-text hover:bg-repo-surface-2 disabled:opacity-40 disabled:cursor-not-allowed disabled:hover:bg-transparent disabled:hover:text-repo-text-muted transition-colors"
+                >
+                  Next
+                  <ChevronRight size={14} />
+                </button>
+              </div>
+            )}
+
 
           {/* Analyze button */}
           {selectedRepo && !reposLoading && (
