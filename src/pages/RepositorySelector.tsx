@@ -14,7 +14,6 @@ export function RepositorySelector() {
   const [page, setPage] = useState(1);
 
   const filtered = repositories.filter(repo => {
-    if (repo.visibility !== 'public') return false;
     const matchesQuery = repo.name.toLowerCase().includes(query.toLowerCase()) ||
       repo.fullName.toLowerCase().includes(query.toLowerCase());
     if (filter === 'public') return matchesQuery;
