@@ -1,0 +1,115 @@
+@import "tailwindcss";
+
+@theme {
+  --color-repo-bg: #08090A;
+  --color-repo-surface: #0D0F10;
+  --color-repo-surface-2: #111315;
+  --color-repo-panel: #151719;
+  --color-repo-border: #23262A;
+  --color-repo-text: #F5F5F5;
+  --color-repo-text-secondary: #A1A1AA;
+  --color-repo-text-muted: #686B70;
+  --color-repo-accent: #B8F36B;
+  --color-repo-accent-dim: #8BC34A;
+  --color-repo-danger: #EF4444;
+  --color-repo-success: #22C55E;
+  --color-repo-warning: #EAB308;
+  --font-sans: 'Inter', system-ui, -apple-system, sans-serif;
+  --font-mono: 'JetBrains Mono', 'Fira Code', monospace;
+}
+
+@layer base {
+  * {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+  }
+
+  html, body, #root {
+    height: 100%;
+    width: 100%;
+    overflow: hidden;
+  }
+
+  body {
+    font-family: var(--font-sans);
+    background-color: var(--color-repo-bg);
+    color: var(--color-repo-text);
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    font-size: 13px;
+    line-height: 1.5;
+  }
+
+  ::-webkit-scrollbar {
+    width: 6px;
+    height: 6px;
+  }
+
+  ::-webkit-scrollbar-track {
+    background: transparent;
+  }
+
+  ::-webkit-scrollbar-thumb {
+    background: #23262A;
+    border-radius: 3px;
+  }
+
+  ::-webkit-scrollbar-thumb:hover {
+    background: #2E3135;
+  }
+
+  ::selection {
+    background-color: rgba(184, 243, 107, 0.2);
+    color: #F5F5F5;
+  }
+
+  input, textarea {
+    font-family: var(--font-sans);
+  }
+
+  code, pre, .font-mono {
+    font-family: var(--font-mono);
+  }
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+@keyframes slideUp {
+  from { opacity: 0; transform: translateY(8px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes slideDown {
+  from { opacity: 0; transform: translateY(-8px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes scaleIn {
+  from { opacity: 0; transform: scale(0.95); }
+  to { opacity: 1; transform: scale(1); }
+}
+
+@keyframes pulse-dot {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.4; }
+}
+
+@keyframes shimmer {
+  0% { background-position: -200% 0; }
+  100% { background-position: 200% 0; }
+}
+
+.animate-fade-in { animation: fadeIn 200ms ease-out; }
+.animate-slide-up { animation: slideUp 200ms ease-out; }
+.animate-slide-down { animation: slideDown 200ms ease-out; }
+.animate-scale-in { animation: scaleIn 150ms ease-out; }
+.animate-pulse-dot { animation: pulse-dot 2s ease-in-out infinite; }
+.animate-shimmer {
+  background: linear-gradient(90deg, transparent, rgba(184,243,107,0.05), transparent);
+  background-size: 200% 100%;
+  animation: shimmer 2s infinite;
+}
