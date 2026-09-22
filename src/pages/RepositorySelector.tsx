@@ -5,7 +5,7 @@ import { cn } from '../lib/utils';
 
 type Filter = 'all' | 'public' | 'recent';
 
-const PAGE_SIZE = 6;
+const PAGE_SIZE = 5;
 
 export function RepositorySelector() {
   const { selectRepo, startAnalysis, selectedRepo, repositories, reposLoading, reposError, retryLoadRepos } = useApp();
@@ -67,7 +67,7 @@ export function RepositorySelector() {
           </div>
 
           {/* Repository list */}
-          <div className="space-y-1">
+          <div className="space-y-1 max-h-[440px] overflow-y-auto pr-1">
             {reposLoading && (
               <div className="flex items-center gap-2 px-3 py-4 text-[12px] text-repo-text-secondary">
                 <span className="w-4 h-4 border-2 border-repo-accent border-t-transparent rounded-full animate-spin" />
