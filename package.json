@@ -1,13 +1,19 @@
 {
   "name": "vexa",
   "private": true,
-  "version": "0.0.0",
+  "description": "REPO - AI-powered codebase intelligence for developers",
+  "author": "Aamir Almani",
+  "version": "0.1.0",
   "type": "module",
+  "main": "dist-electron/main.cjs",
   "scripts": {
     "dev": "vite",
     "build": "tsc -b && vite build",
     "lint": "oxlint",
-    "preview": "vite preview"
+    "preview": "vite preview",
+    "build:electron": "esbuild electron/main.ts --bundle --platform=node --format=cjs --external:electron --outfile=dist-electron/main.cjs && esbuild electron/preload.ts --bundle --platform=node --format=cjs --external:electron --outfile=dist-electron/preload.cjs",
+    "electron:dev": "npm run build:electron && concurrently -k \"vite\" \"wait-on tcp:5173 && electron .\"",
+    "electron:build": "npm run build && npm run build:electron && electron-builder --win"
   },
   "dependencies": {
     "class-variance-authority": "^0.7.1",
@@ -24,9 +30,34 @@
     "@types/react": "^19.2.18",
     "@types/react-dom": "^19.2.7",
     "@vitejs/plugin-react": "^6.1.1",
+    "concurrently": "^10.0.5",
+    "electron": "^44.4.5",
+    "electron-builder": "^26.15.3",
+    "esbuild": "^0.28.2",
     "oxlint": "^1.81.0",
     "tailwindcss": "^4.3.3",
     "typescript": "~6.0.2",
-    "vite": "^8.3.0"
+    "vite": "^8.3.0",
+    "wait-on": "^9.1.0"
+  },
+  "build": {
+    "appId": "com.aamirali65.repo",
+    "productName": "REPO",
+    "directories": {
+      "output": "release"
+    },
+    "files": ["dist/**/*", "dist-electron/**/*"],
+    "npmRebuild": false,
+    "win": {
+      "target": [{ "target": "nsis", "arch": ["x64"] }]
+    },
+    "nsis": {
+      "oneClick": true,
+      "perMachine": false
+    }
+  },
+  "allowScripts": {
+    "electron-winstaller@5.4.0": true,
+    "esbuild@0.28.2": true
   }
 }

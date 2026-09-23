@@ -112,5 +112,6 @@ export default defineConfig(({ mode }) => {
 
   return {
     plugins: [react(), tailwindcss(), githubTokenProxy(env)],
+    server: { port: 5173, strictPort: true },
   }
 })
