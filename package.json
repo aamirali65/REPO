@@ -43,6 +43,7 @@
   "build": {
     "appId": "com.aamirali65.repo",
     "productName": "REPO",
+    "electronDist": "node_modules/electron/dist",
     "directories": {
       "output": "release"
     },
