@@ -2,12 +2,14 @@ import { app, BrowserWindow } from 'electron';
 import path from 'node:path';
 import { registerRepositoryIpc } from './ipc/repository';
 import { registerFilesystemIpc } from './ipc/filesystem';
+import { registerOauthIpc, setOauthWindow } from './ipc/oauth';
 
 const isDev = !app.isPackaged;
 const DEV_SERVER_URL = 'http://localhost:5173';
 
 registerRepositoryIpc();
 registerFilesystemIpc();
+registerOauthIpc();
 
 function createWindow(): void {
   const win = new BrowserWindow({
@@ -26,6 +28,7 @@ function createWindow(): void {
     },
   });
 
+  setOauthWindow(win);
   win.once('ready-to-show', () => win.show());
 
   if (isDev) {

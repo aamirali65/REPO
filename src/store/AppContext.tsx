@@ -4,7 +4,7 @@ import {
 import { initialMessages, type Repository, type ChatMessage } from '../data/mockData';
 import {
   buildAuthorizationUrl, checkOAuthState, clearOAuthState, exchangeCodeForToken,
-  fetchAuthenticatedUser, fetchUserRepositories, getStoredVerifier, initials, mapRepo,
+  fetchAuthenticatedUser, fetchUserRepositories, getStoredVerifier, initials, isElectron, mapRepo,
 } from '../lib/github';
 import { loadSession, saveSession, clearSession, type AppUser } from '../lib/session';
 
@@ -103,11 +103,21 @@ export function AppProvider({ children }: { children: ReactNode }) {
   }, [token, user, repositories, selectedRepo]);
 
   const startOAuth = useCallback(async () => {
+    oauthHandledRef.current = false;
     try {
       const url = await buildAuthorizationUrl();
-      window.location.assign(url);
+      if (isElectron()) {
+        setStep('connecting');
+        setAuthLoading(true);
+        setAuthError(null);
+        await window.repoNative.openOAuth({ authorizeUrl: url });
+      } else {
+        window.location.assign(url);
+      }
     } catch (err) {
+      clearOAuthState();
       setAuthError(getErrorMessage(err));
+      setAuthLoading(false);
       setStep('welcome');
     }
   }, []);
@@ -120,42 +130,13 @@ export function AppProvider({ children }: { children: ReactNode }) {
     void startOAuth();
   }, [connected, token, startOAuth]);
 
-  const handleOAuthCallback = useCallback(async () => {
-    if (oauthHandledRef.current) return;
-    oauthHandledRef.current = true;
-
-    const params = new URLSearchParams(window.location.search);
-    const code = params.get('code');
-    const state = params.get('state');
-    const oauthError = params.get('error');
-
-    const finish = () => {
-      window.history.replaceState({}, document.title, '/');
-      clearOAuthState();
-    };
-
-    if (oauthError) {
-      setAuthError(`GitHub authorization was cancelled or failed: ${oauthError}`);
-      setAuthLoading(false);
-      setStep('welcome');
-      finish();
-      return;
-    }
-
-    if (!code || !checkOAuthState(state)) {
-      setAuthError('Authorization failed: invalid or missing OAuth response.');
-      setAuthLoading(false);
-      setStep('welcome');
-      finish();
-      return;
-    }
-
+  const finishOAuth = useCallback(async (code: string) => {
     const verifier = getStoredVerifier();
     if (!verifier) {
       setAuthError('Authorization session expired. Please try again.');
       setAuthLoading(false);
       setStep('welcome');
-      finish();
+      clearOAuthState();
       return;
     }
 
@@ -189,9 +170,77 @@ export function AppProvider({ children }: { children: ReactNode }) {
       setStep('welcome');
     } finally {
       setAuthLoading(false);
-      finish();
+      clearOAuthState();
     }
   }, []);
+
+  const handleOAuthCallback = useCallback(async () => {
+    if (oauthHandledRef.current) return;
+    oauthHandledRef.current = true;
+
+    const params = new URLSearchParams(window.location.search);
+    const code = params.get('code');
+    const state = params.get('state');
+    const oauthError = params.get('error');
+
+    const finish = () => {
+      window.history.replaceState({}, document.title, '/');
+      clearOAuthState();
+    };
+
+    if (oauthError) {
+      setAuthError(`GitHub authorization was cancelled or failed: ${oauthError}`);
+      setAuthLoading(false);
+      setStep('welcome');
+      finish();
+      return;
+    }
+
+    if (!code || !checkOAuthState(state)) {
+      setAuthError('Authorization failed: invalid or missing OAuth response.');
+      setAuthLoading(false);
+      setStep('welcome');
+      finish();
+      return;
+    }
+
+    try {
+      await finishOAuth(code);
+    } finally {
+      window.history.replaceState({}, document.title, '/');
+    }
+  }, [finishOAuth]);
+
+  useEffect(() => {
+    if (!isElectron()) return;
+
+    return window.repoNative.onOauthCallback((data) => {
+      if (oauthHandledRef.current) return;
+
+      const error = data?.error;
+      const code = data?.code;
+      const state = data?.state ?? null;
+
+      if (error) {
+        oauthHandledRef.current = true;
+        setAuthError(`GitHub authorization was cancelled or failed: ${error}`);
+        setAuthLoading(false);
+        setStep('welcome');
+        clearOAuthState();
+        return;
+      }
+
+      if (!code || !checkOAuthState(state)) {
+        setAuthError('Authorization failed: invalid or missing OAuth response.');
+        setAuthLoading(false);
+        setStep('welcome');
+        return;
+      }
+
+      oauthHandledRef.current = true;
+      void finishOAuth(code);
+    });
+  }, [finishOAuth]);
 
   const disconnect = useCallback(() => {
     clearSession();

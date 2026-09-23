@@ -10,7 +10,15 @@ const API_ENDPOINT = 'https://api.github.com';
 
 export const DEPRECATED_REDIRECT_PATH = '/auth/github/callback';
 
+// keep in sync with electron/ipc/oauth.ts (LOOPBACK_REDIRECT_URI)
+const ELECTRON_REDIRECT_URI = 'http://localhost:5174/auth/github/callback';
+
+export function isElectron(): boolean {
+  return typeof window !== 'undefined' && !!window.repoNative;
+}
+
 export function getRedirectUri(): string {
+  if (isElectron()) return ELECTRON_REDIRECT_URI;
   return `${window.location.origin}${DEPRECATED_REDIRECT_PATH}`;
 }
 
@@ -105,6 +113,17 @@ export async function exchangeCodeForToken(code: string, verifier: string): Prom
     throw new Error('Missing VITE_GITHUB_CLIENT_ID. Add it to your .env file.');
   }
 
+  const redirectUri = getRedirectUri();
+
+  if (isElectron()) {
+    return window.repoNative.exchangeToken({
+      clientId: CLIENT_ID,
+      code,
+      codeVerifier: verifier,
+      redirectUri,
+    });
+  }
+
   const res = await fetch('/api/github/token', {
     method: 'POST',
     headers: {
@@ -113,7 +132,7 @@ export async function exchangeCodeForToken(code: string, verifier: string): Prom
     body: JSON.stringify({
       client_id: CLIENT_ID,
       code,
-      redirect_uri: getRedirectUri(),
+      redirect_uri: redirectUri,
       code_verifier: verifier,
     }),
   });
