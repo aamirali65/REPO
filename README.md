@@ -16,9 +16,9 @@ Connect GitHub · explore code · ask questions · see what changes affect.
 [![TypeScript](https://img.shields.io/badge/TypeScript-6.0-3178C6?logo=typescript&logoColor=white)](https://www.typescriptlang.org/)
 [![React](https://img.shields.io/badge/React-19-61DAFB?logo=react&logoColor=black)](https://react.dev/)
 [![Vite](https://img.shields.io/badge/Vite-8-646CFF?logo=vite&logoColor=white)](https://vite.dev/)
-[![Vercel](https://img.shields.io/badge/Vercel-Deployed-000000?logo=vercel&logoColor=white)](https://repo-blue-eta.vercel.app)
+[![Vercel](https://img.shields.io/badge/Vercel-Deployed-000000?logo=vercel&logoColor=white)](https://repo-desktop.vercel.app)
 
-**[Live Demo](https://repo-blue-eta.vercel.app)** · **[Report Issue](https://github.com/aamirali65/REPO/issues)** · **[Source](https://github.com/aamirali65/REPO)**
+**[Live Demo](https://repo-desktop.vercel.app)** · **[Report Issue](https://github.com/aamirali65/REPO/issues)** · **[Source](https://github.com/aamirali65/REPO)**
 
 </div>
 
@@ -288,7 +288,7 @@ All available scripts:
 
 ## Deployment
 
-REPO is deployed on **Vercel** → **[repo-blue-eta.vercel.app](https://repo-blue-eta.vercel.app)**
+REPO is deployed on **Vercel** → **[repo-desktop.vercel.app](https://repo-desktop.vercel.app)**
 
 1. Import the repository into [Vercel](https://vercel.com/new) (Vite framework preset — build `npm run build`, output `dist`).
 2. Add environment variables for **Production, Preview, and Development**:
@@ -344,6 +344,6 @@ No license has been specified for this repository. All rights reserved by the au
 
 ## Links
 
-- **Live demo:** https://repo-blue-eta.vercel.app
+- **Live demo:** https://repo-desktop.vercel.app
 - **Repository:** https://github.com/aamirali65/REPO
 - **Issues:** https://github.com/aamirali65/REPO/issues

@@ -8,7 +8,7 @@ const LOOPBACK_REDIRECT_URI = `http://localhost:${LOOPBACK_PORT}${CALLBACK_PATH}
 const AUTHORIZE_HOST = 'github.com';
 const AUTHORIZE_PATH = '/login/oauth/authorize';
 const DEV_TOKEN_ENDPOINT = 'http://localhost:5173/api/github/token';
-const PROD_TOKEN_ENDPOINT = 'https://repo-blue-eta.vercel.app/api/github/token';
+const PROD_TOKEN_ENDPOINT = 'https://repo-desktop.vercel.app/api/github/token';
 
 const CALLBACK_HTML = `<!doctype html>
 <html lang="en">
