@@ -1,10 +1,6 @@
-import { app, ipcMain } from 'electron';
+import { ipcMain } from 'electron';
 import path from 'node:path';
-import { requireRepoSegment } from './filesystem';
-
-function repositoriesRoot(): string {
-  return path.join(app.getPath('appData'), 'REPO', 'repositories');
-}
+import { repositoriesRoot, requireRepoSegment } from './filesystem';
 
 export function registerRepositoryIpc(): void {
   ipcMain.handle('repo:storage-root', () => ({ path: repositoriesRoot() }));

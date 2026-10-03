@@ -19,7 +19,7 @@ const codeItems = [
 ];
 
 export function Sidebar() {
-  const { workspaceView, setWorkspaceView, sidebarCollapsed, toggleSidebar, selectedRepo, setRepoSwitcherOpen, user } = useApp();
+  const { workspaceView, setWorkspaceView, sidebarCollapsed, toggleSidebar, selectedRepo, setRepoSwitcherOpen, user, repoMetadata } = useApp();
 
   return (
     <aside
@@ -106,7 +106,7 @@ export function Sidebar() {
           {!sidebarCollapsed && (
             <div className="flex flex-col items-start">
               <span className="font-medium">{selectedRepo?.name || 'No repo'}</span>
-              <span className="text-[10px] text-repo-text-muted">main · {selectedRepo?.files || 0} files</span>
+              <span className="text-[10px] text-repo-text-muted">{repoMetadata?.defaultBranch ?? 'main'} · {selectedRepo?.files || 0} files</span>
             </div>
           )}
         </button>

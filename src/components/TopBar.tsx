@@ -4,7 +4,7 @@ import { RepoLogo } from './RepoLogo';
 import { useApp } from '../store/AppContext';
 
 export function TopBar() {
-  const { selectedRepo, setCommandPaletteOpen, setRepoSwitcherOpen, user } = useApp();
+  const { selectedRepo, setCommandPaletteOpen, setRepoSwitcherOpen, user, repoMetadata } = useApp();
 
   return (
     <header className="h-[40px] bg-repo-surface border-b border-repo-border flex items-center justify-between px-3 select-none">
@@ -20,7 +20,7 @@ export function TopBar() {
                 onClick={() => setRepoSwitcherOpen(true)}
                 className="flex items-center gap-1 text-repo-text-secondary hover:text-repo-text transition-colors"
               >
-                main
+                {repoMetadata?.defaultBranch ?? 'main'}
                 <ChevronDown size={12} />
               </button>
             </>

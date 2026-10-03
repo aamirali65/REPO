@@ -1,10 +1,10 @@
 import { useState } from 'react';
-import { Settings as SettingsIcon, Palette, Code2, Brain, Shield, Info } from 'lucide-react';
+import { Settings as SettingsIcon, Palette, Code2, Brain, Shield, Info, LogOut } from 'lucide-react';
 import { GithubIcon } from '../components/GithubIcon';
 import { useApp } from '../store/AppContext';
 
 export function Settings() {
-  const { user } = useApp();
+  const { user, disconnect } = useApp();
   const [font, setFont] = useState('JetBrains Mono');
   const [fontSize, setFontSize] = useState(14);
   const [provider] = useState('Ollama');
@@ -140,6 +140,19 @@ export function Settings() {
                   <span className="text-[11px] text-repo-text">{user?.name}</span>
                   <span className="text-[10px] text-repo-text-muted">{user?.username}</span>
                 </div>
+              </div>
+              <div className="flex items-center justify-between pt-2 border-t border-repo-border">
+                <div className="flex flex-col">
+                  <span className="text-[12px] text-repo-text-secondary">Session</span>
+                  <span className="text-[10px] text-repo-text-muted">Reconnect if your GitHub session expires</span>
+                </div>
+                <button
+                  onClick={disconnect}
+                  className="flex items-center gap-1.5 px-2.5 py-1.5 rounded border border-repo-border text-[11px] text-repo-danger hover:bg-repo-danger/10 hover:border-repo-danger/40 transition-colors"
+                >
+                  <LogOut size={12} />
+                  Disconnect GitHub
+                </button>
               </div>
             </div>
           </section>

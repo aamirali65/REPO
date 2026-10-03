@@ -31,6 +31,7 @@ export interface SourceRef {
 export interface FileNode {
   name: string;
   type: 'file' | 'folder';
+  path?: string;
   children?: FileNode[];
   language?: string;
 }
@@ -41,11 +42,15 @@ export interface ArchNode {
   type: 'screen' | 'provider' | 'service' | 'model' | 'api' | 'storage';
   x: number;
   y: number;
+  files?: number;
+  sampleFiles?: string[];
+  topExt?: string;
 }
 
 export interface ArchEdge {
   from: string;
   to: string;
+  count?: number;
 }
 
 export interface ImpactRef {

@@ -1,9 +1,11 @@
-import React, { useState, useRef } from 'react';
+import React, { useState, useRef, useEffect } from 'react';
 import {
   Monitor, Cpu, Database, Cloud, Layers, Box,
-  RotateCcw, ZoomIn, ZoomOut, X
+  RotateCcw, ZoomIn, ZoomOut, X, Loader2, AlertCircle, RefreshCw
 } from 'lucide-react';
 import { archNodes, archEdges, type ArchNode } from '../data/mockData';
+import { useApp } from '../store/AppContext';
+import { canUseRepoIntel, loadStructure, buildArchGraph, type ArchGraph } from '../lib/repoIntel';
 import { cn } from '../lib/utils';
 
 const typeIcons: Record<string, React.FC<{ size: number; style?: React.CSSProperties }>> = {
@@ -25,11 +27,37 @@ const typeColors: Record<string, string> = {
 };
 
 export function Architecture() {
+  const { selectedRepo } = useApp();
   const [selectedNode, setSelectedNode] = useState<ArchNode | null>(null);
   const [zoom, setZoom] = useState(1);
   const [pan, setPan] = useState({ x: 0, y: 0 });
   const [isPanning, setIsPanning] = useState(false);
   const lastPos = useRef({ x: 0, y: 0 });
+
+  const native = canUseRepoIntel() && !!selectedRepo;
+  const [graph, setGraph] = useState<ArchGraph | null>(null);
+  const [graphError, setGraphError] = useState<string | null>(null);
+  const [graphRetry, setGraphRetry] = useState(0);
+  const [owner, repoName] = selectedRepo ? selectedRepo.fullName.split('/') : ['', ''];
+
+  useEffect(() => {
+    if (!native || !owner || !repoName) {
+      setGraph(null);
+      setGraphError(null);
+      return;
+    }
+    let cancelled = false;
+    setGraph(null);
+    setGraphError(null);
+    loadStructure(owner, repoName)
+      .then((s) => { if (!cancelled) setGraph(buildArchGraph(s)); })
+      .catch((err) => { if (!cancelled) setGraphError(err instanceof Error ? err.message : 'Failed to build architecture map.'); });
+    return () => { cancelled = true; };
+  }, [native, owner, repoName, selectedRepo?.id, graphRetry]);
+
+  const nodes = native ? graph?.nodes ?? [] : archNodes;
+  const edges = native ? graph?.edges ?? [] : archEdges;
+  const graphLoading = native && !graph && !graphError;
 
   const handleMouseDown = (e: React.MouseEvent) => {
     if (e.target === e.currentTarget || (e.target as HTMLElement).closest('.arch-bg')) {
@@ -53,7 +81,9 @@ export function Architecture() {
       <div className="flex items-center justify-between px-4 h-[40px] border-b border-repo-border">
         <div>
           <h1 className="text-[13px] font-semibold text-repo-text">Architecture</h1>
-          <p className="text-[10px] text-repo-text-muted">AI-generated map of the project</p>
+          <p className="text-[10px] text-repo-text-muted">
+            {native ? 'Project map generated from import relationships' : 'Project structure map'}
+          </p>
         </div>
         <div className="flex items-center gap-1">
           <button
@@ -85,6 +115,25 @@ export function Architecture() {
           onMouseUp={handleMouseUp}
           onMouseLeave={handleMouseUp}
         >
+          {graphLoading && (
+            <div className="absolute inset-0 flex flex-col items-center justify-center gap-3 text-repo-text-muted z-10">
+              <Loader2 size={18} className="animate-spin" />
+              <span className="text-[11px]">Building architecture map from imports...</span>
+            </div>
+          )}
+          {graphError && (
+            <div className="absolute inset-0 flex flex-col items-center justify-center gap-3 z-10">
+              <AlertCircle size={18} className="text-repo-danger/70" />
+              <span className="text-[11px] text-repo-text-secondary">{graphError}</span>
+              <button
+                onClick={() => setGraphRetry((n) => n + 1)}
+                className="flex items-center gap-2 px-3 py-1.5 rounded border border-repo-border text-[11px] text-repo-text-secondary hover:text-repo-text transition-colors"
+              >
+                <RefreshCw size={12} />
+                Try Again
+              </button>
+            </div>
+          )}
           <div
             className="absolute arch-bg"
             style={{
@@ -96,9 +145,9 @@ export function Architecture() {
           >
             <svg className="absolute inset-0 w-full h-full" style={{ pointerEvents: 'none' }}>
               {/* Edges */}
-              {archEdges.map((edge, i) => {
-                const from = archNodes.find(n => n.id === edge.from);
-                const to = archNodes.find(n => n.id === edge.to);
+              {edges.map((edge, i) => {
+                const from = nodes.find(n => n.id === edge.from);
+                const to = nodes.find(n => n.id === edge.to);
                 if (!from || !to) return null;
                 return (
                   <line
@@ -116,7 +165,7 @@ export function Architecture() {
             </svg>
 
             {/* Nodes */}
-            {archNodes.map((node) => {
+            {nodes.map((node) => {
               const Icon = typeIcons[node.type] || Box;
               const color = typeColors[node.type];
               return (
@@ -175,11 +224,11 @@ export function Architecture() {
                 <div>
                   <h4 className="text-[10px] text-repo-text-muted mb-1">Connections</h4>
                   <div className="space-y-1">
-                    {archEdges
+                    {edges
                       .filter(e => e.from === selectedNode.id || e.to === selectedNode.id)
                       .map((edge, i) => {
                         const connectedId = edge.from === selectedNode.id ? edge.to : edge.from;
-                        const connected = archNodes.find(n => n.id === connectedId);
+                        const connected = nodes.find(n => n.id === connectedId);
                         if (!connected) return null;
                         const direction = edge.from === selectedNode.id ? '→' : '←';
                         return (
@@ -198,14 +247,30 @@ export function Architecture() {
 
                 <div>
                   <h4 className="text-[10px] text-repo-text-muted mb-1">Description</h4>
-                  <p className="text-[11px] text-repo-text-secondary leading-relaxed">
-                    {selectedNode.type === 'screen' && 'UI screen component that renders the user interface.'}
-                    {selectedNode.type === 'provider' && 'State management component using the Provider pattern.'}
-                    {selectedNode.type === 'service' && 'Business logic service handling core functionality.'}
-                    {selectedNode.type === 'model' && 'Data model defining the structure of domain objects.'}
-                    {selectedNode.type === 'api' && 'External API endpoint for backend communication.'}
-                    {selectedNode.type === 'storage' && 'Local storage service for persisting data.'}
-                  </p>
+                  {selectedNode.files != null ? (
+                    <div className="space-y-1.5">
+                      <p className="text-[11px] text-repo-text-secondary leading-relaxed">
+                        {selectedNode.files} source file{selectedNode.files !== 1 ? 's' : ''}
+                        {selectedNode.topExt ? ` · mostly .${selectedNode.topExt}` : ''}
+                      </p>
+                      {selectedNode.sampleFiles && selectedNode.sampleFiles.length > 0 && (
+                        <div className="space-y-0.5">
+                          {selectedNode.sampleFiles.map((f) => (
+                            <div key={f} className="font-mono text-[10px] text-repo-text-muted truncate">{f}</div>
+                          ))}
+                        </div>
+                      )}
+                    </div>
+                  ) : (
+                    <p className="text-[11px] text-repo-text-secondary leading-relaxed">
+                      {selectedNode.type === 'screen' && 'UI screen component that renders the user interface.'}
+                      {selectedNode.type === 'provider' && 'State management component using the Provider pattern.'}
+                      {selectedNode.type === 'service' && 'Business logic service handling core functionality.'}
+                      {selectedNode.type === 'model' && 'Data model defining the structure of domain objects.'}
+                      {selectedNode.type === 'api' && 'External API endpoint for backend communication.'}
+                      {selectedNode.type === 'storage' && 'Local storage service for persisting data.'}
+                    </p>
+                  )}
                 </div>
               </div>
             </div>

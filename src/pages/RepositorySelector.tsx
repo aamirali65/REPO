@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { Search, Lock, Globe, ArrowRight, ChevronLeft, ChevronRight } from 'lucide-react';
+import { Search, Lock, Globe, ArrowRight, ChevronLeft, ChevronRight, LogOut } from 'lucide-react';
 import { useApp } from '../store/AppContext';
 import { cn } from '../lib/utils';
 
@@ -8,7 +8,7 @@ type Filter = 'all' | 'public' | 'recent';
 const PAGE_SIZE = 5;
 
 export function RepositorySelector() {
-  const { selectRepo, startAnalysis, selectedRepo, repositories, reposLoading, reposError, retryLoadRepos } = useApp();
+  const { selectRepo, startAnalysis, selectedRepo, repositories, reposLoading, reposError, retryLoadRepos, disconnect, user } = useApp();
   const [query, setQuery] = useState('');
   const [filter, setFilter] = useState<Filter>('all');
   const [page, setPage] = useState(1);
@@ -32,10 +32,22 @@ export function RepositorySelector() {
     <div className="h-full w-full flex flex-col bg-repo-bg animate-fade-in">
       <div className="flex-1 flex flex-col items-center pt-12 px-4">
         <div className="w-full max-w-[560px]">
-          <h1 className="text-[18px] font-semibold text-repo-text mb-1">Select a repository</h1>
-          <p className="text-[12px] text-repo-text-secondary mb-5">
-            Choose a repository to understand with Repo.
-          </p>
+          <div className="flex items-start justify-between gap-3 mb-5">
+            <div>
+              <h1 className="text-[18px] font-semibold text-repo-text mb-1">Select a repository</h1>
+              <p className="text-[12px] text-repo-text-secondary">
+                {user ? `Connected as ${user.username} · ` : ''}Choose a repository to understand with Repo.
+              </p>
+            </div>
+            <button
+              onClick={disconnect}
+              title="Disconnect GitHub account"
+              className="flex items-center gap-1.5 px-2.5 py-1.5 rounded border border-repo-border text-[11px] text-repo-danger hover:bg-repo-danger/10 hover:border-repo-danger/40 transition-colors flex-shrink-0"
+            >
+              <LogOut size={12} />
+              Disconnect GitHub
+            </button>
+          </div>
 
           {/* Search */}
           <div className="flex items-center gap-2 px-3 h-[34px] bg-repo-surface border border-repo-border rounded mb-3">
@@ -78,12 +90,20 @@ export function RepositorySelector() {
             {!reposLoading && reposError && (
               <div className="flex flex-col items-center gap-3 px-3 py-6 text-center animate-fade-in">
                 <span className="text-[12px] text-repo-danger">{reposError}</span>
-                <button
-                  onClick={retryLoadRepos}
-                  className="px-3 py-1.5 rounded bg-repo-accent text-repo-bg text-[11px] font-medium hover:bg-repo-accent/90 transition-colors"
-                >
-                  Retry
-                </button>
+                <div className="flex items-center gap-2">
+                  <button
+                    onClick={retryLoadRepos}
+                    className="px-3 py-1.5 rounded bg-repo-accent text-repo-bg text-[11px] font-medium hover:bg-repo-accent/90 transition-colors"
+                  >
+                    Retry
+                  </button>
+                  <button
+                    onClick={disconnect}
+                    className="px-3 py-1.5 rounded border border-repo-border text-[11px] text-repo-danger hover:bg-repo-danger/10 hover:border-repo-danger/40 transition-colors"
+                  >
+                    Disconnect & Reconnect
+                  </button>
+                </div>
               </div>
             )}
 
@@ -174,7 +194,7 @@ export function RepositorySelector() {
           {selectedRepo && !reposLoading && (
             <div className="mt-4 flex justify-end animate-slide-up">
               <button
-                onClick={startAnalysis}
+                onClick={() => startAnalysis()}
                 className="flex items-center gap-2 px-4 py-2 rounded bg-repo-accent text-repo-bg text-[12px] font-medium hover:bg-repo-accent/90 transition-colors"
               >
                 Analyze Repository

@@ -44,7 +44,7 @@ export function GitHub() {
                   key={repo.id}
                   onClick={() => {
                     selectRepo(repo);
-                    startAnalysis();
+                    startAnalysis(repo);
                   }}
                   className="w-full flex items-center gap-3 px-3 py-2 rounded hover:bg-repo-surface-2 transition-colors text-left"
                 >

@@ -1,7 +1,7 @@
 import { useApp } from '../store/AppContext';
 
 export function StatusBar() {
-  const { selectedRepo } = useApp();
+  const { selectedRepo, repoMetadata } = useApp();
 
   return (
     <footer className="h-[22px] bg-repo-surface border-t border-repo-border flex items-center justify-between px-3 text-[10px] select-none">
@@ -19,7 +19,7 @@ export function StatusBar() {
         <span className="text-repo-text-muted">
           Indexed · {selectedRepo?.files || 0} files
         </span>
-        <span className="text-repo-text-muted">main</span>
+        <span className="text-repo-text-muted">{repoMetadata?.defaultBranch ?? 'main'}</span>
       </div>
     </footer>
   );
